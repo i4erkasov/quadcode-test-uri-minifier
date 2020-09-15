@@ -1,8 +1,13 @@
 {
-    "name": "symfony/skeleton",
-    "type": "project",
+    "name": "i4erkasov/quadcode-test-uri-minifier",
     "license": "MIT",
-    "description": "A minimal Symfony project recommended to create bare bones applications",
+    "description": "Test task shorter url",
+    "authors": [
+        {
+            "name": "Ivan Cherkasov",
+            "email": "i.4erkasov@gmail.com"
+        }
+    ],
     "require": {
         "php": ">=7.4",
         "ext-apcu": "*",
