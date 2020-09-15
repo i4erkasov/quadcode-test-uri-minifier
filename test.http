@@ -4,7 +4,7 @@ accept: application/json
 Content-Type: application/json
 
 {
-    "url": "http://127.0.0.1:8088/url/generate/123"
+    "url": "https://github.com/i4erkasov/quadcode-test-uri-minifier/blob/master/README.md"
 }
 
 ###
@@ -13,7 +13,12 @@ accept: application/json
 ###
 
 ###
-GET http://127.0.0.1:8088/statistic/redirect/1
+GET http://127.0.0.1:8088/statistic/redirect
+accept: application/json
+###
+
+###
+GET http://127.0.0.1:8088/statistic/redirect/2
 accept: application/json
 ###
 
