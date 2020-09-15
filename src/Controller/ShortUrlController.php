@@ -4,8 +4,9 @@ namespace App\Controller;
 
 use App\Requests\UrlGenerateRequest;
 use App\Services\ShortUrlService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class ShortUrlController
+class ShortUrlController extends AbstractController
 {
     /**
      * @param UrlGenerateRequest $request
@@ -18,22 +19,16 @@ class ShortUrlController
     {
         $schema = $request->getSchema();
         $host   = $request->getHost();
-        $port   = $request->getPort();
         $url    = $request->getUrl();
 
-        if (in_array($port, [80, 443])) {
-            $host .= ':' . $port;
-        }
-
-        return [
-            'short_url' => $service->createShortUrl($schema, $host, $url),
-        ];
+        return $service->createShortUrl($schema, $host, $url);
     }
 
     /**
      * @param int             $length
      * @param ShortUrlService $service
      *
+     * @throws \Doctrine\DBAL\DBALException
      * @return array
      */
     public function limits(int $length, ShortUrlService $service)

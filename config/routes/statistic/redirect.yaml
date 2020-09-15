@@ -1,0 +1,11 @@
+index:
+  path: /redirect
+  methods: [GET]
+  controller: App\Controller\StatisticRedirectController::index
+
+detail:
+  path: /redirect/{id}
+  methods: [GET]
+  controller: App\Controller\StatisticRedirectController::detail
+  requirements:
+    id: '^[1-9]\d*'

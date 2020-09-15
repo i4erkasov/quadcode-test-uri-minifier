@@ -2,6 +2,7 @@
 
 namespace App\Extensions;
 
+use App\Exceptions\AppInvalidParametersException;
 use App\Interfaces\RequestDtoInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -56,7 +57,7 @@ class RequestDtoResolver implements ArgumentValueResolverInterface
         $errors = $this->validator->validate(new $class($request));
 
         if ($errors->count()) {
-            throw new \Exception($errors->get(0)->getMessage());
+            throw new AppInvalidParametersException($errors->get(0)->getMessage());
         }
 
         yield $dto;

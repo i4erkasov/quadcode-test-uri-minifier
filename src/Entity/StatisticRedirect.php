@@ -20,7 +20,7 @@ class StatisticRedirect
     /**
      * @ORM\Column(type="integer", name="url_id")
      *
-     * @ORM\ManyToOne(targetEntity="Urls", inversedBy="id")
+     * @ORM\ManyToOne(targetEntity="ShortUrl", inversedBy="id")
      */
     private $urlId;
 

@@ -1,0 +1,23 @@
+###
+POST http://127.0.0.1:8088/shorturl/generate
+accept: application/json
+Content-Type: application/json
+
+{
+    "url": "http://127.0.0.1:8088/url/generate/123"
+}
+
+###
+GET http://127.0.0.1:8088/shorturl/limits/3
+accept: application/json
+###
+
+###
+GET http://127.0.0.1:8088/statistic/redirect/1
+accept: application/json
+###
+
+
+
+
+

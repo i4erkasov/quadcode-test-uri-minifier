@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventSubscribers;
 
+use App\Exceptions\AppInvalidParametersException;
 use Psr\Log\LogLevel;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -75,12 +76,20 @@ class ControllerSubscriber implements EventSubscriberInterface, LoggerAwareInter
     public function onKernelException(ExceptionEvent $event)
     {
         $exception = $event->getThrowable();
-        $error     = $exception->getMessage();
         $request   = $event->getRequest();
 
         $logLevel = LogLevel::CRITICAL;
+        $error    = "Произошла ошибка. Попробуйте выполнить запрос позже";
 
-        $this->logger->log($logLevel, $error, [
+        if ($exception instanceof AppInvalidParametersException) {
+            $logLevel = LogLevel::NOTICE;
+
+            $error = $exception->getMessage();
+        }
+
+        var_dump($exception->getMessage()); die;
+
+        $this->logger->log($logLevel, $exception->getMessage(), [
             'request_query_string' => $request->getQueryString(),
             'request_raw_post'     => $request->getContent(),
             'request_post'         => $request->request->all(),
@@ -95,8 +104,6 @@ class ControllerSubscriber implements EventSubscriberInterface, LoggerAwareInter
             'message' => $error,
         ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR));
 
-        // HttpExceptionInterface is a special type of exception that
-        // holds status code and header details
         if ($exception instanceof HttpExceptionInterface) {
             $response->setStatusCode($exception->getStatusCode());
             $response->headers->replace($exception->getHeaders());
@@ -106,7 +113,6 @@ class ControllerSubscriber implements EventSubscriberInterface, LoggerAwareInter
 
         $response->headers->set('Content-Type', 'application/json');
 
-        // sends the modified response object to the event
         $event->setResponse($response);
     }
 

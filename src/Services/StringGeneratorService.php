@@ -6,17 +6,22 @@ class StringGeneratorService
 {
     private string $chars;
 
+    /**
+     * StringGeneratorService constructor.
+     *
+     * @param string $chars
+     */
     public function __construct(string $chars)
     {
         $this->chars = $chars;
     }
 
     /**
-     * @param $length
+     * @param int $length
      *
      * @return string
      */
-    public function generateString($length): string
+    public function generateString(int $length): string
     {
         $lengthCharSet = $this->getLengthCharSet();
 

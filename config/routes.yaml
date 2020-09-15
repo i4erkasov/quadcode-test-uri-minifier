@@ -1,4 +1,12 @@
+indedx:
+  path: /{code}
+  methods: [ GET ]
+  controller: App\Controller\RedirectController::index
+
 shorturl:
   prefix: /shorturl
   resource: "routes/shorturl/shorturl.yaml"
 
+statistic_redirect:
+  prefix: /statistic
+  resource: "routes/statistic/redirect.yaml"

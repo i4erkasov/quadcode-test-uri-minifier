@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\UrlsRepository;
+use App\Repository\ShortUrlsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=UrlsRepository::class)
+ * @ORM\Table(name="short_urls")
+ * @ORM\Entity(repositoryClass=ShortUrlsRepository::class)
  */
-class Urls
+class ShortUrl
 {
     /**
      * @ORM\Id

@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Entity\Urls;
-use App\Repository\UrlsRepository;
+use App\Entity\ShortUrl;
+use App\Exceptions\AppInvalidParametersException;
+use App\Repository\ShortUrlsRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
 class ShortUrlService
 {
@@ -19,6 +19,13 @@ class ShortUrlService
 
     private const CACHE_KEY_PREFIX = 'SHORTENING_LIMIT_';
 
+    /**
+     * ShortUrlService constructor.
+     *
+     * @param array                  $config
+     * @param StringGeneratorService $generator
+     * @param EntityManagerInterface $em
+     */
     public function __construct(array $config, StringGeneratorService $generator, EntityManagerInterface $em)
     {
         $this->generator = $generator;
@@ -28,17 +35,22 @@ class ShortUrlService
         $this->max = (int)$config['max_length'];
     }
 
+    public static function makeShortUrl(string $schema, string $host, string $code)
+    {
+        return sprintf('%s://%s/%s', $schema, $host, $code);
+    }
+
     /**
      * @param string $schema
      * @param string $host
      * @param string $url
      *
      * @throws \Throwable
-     * @return string|null
+     * @return array
      */
-    public function createShortUrl(string $schema, string $host, string $url): ?string
+    public function createShortUrl(string $schema, string $host, string $url): array
     {
-        $currentLength = apcu_fetch('CURRENT_LENGTH') ?? $this->min;
+        $currentLength = apcu_fetch('CURRENT_LENGTH') ? apcu_fetch('CURRENT_LENGTH') : $this->min;
 
         while ($currentLength <= $this->max) {
             if ($this->getShorteningLimit($currentLength)) {
@@ -49,24 +61,30 @@ class ShortUrlService
         }
 
         if ($this->max < $currentLength) {
-            die('Привышен лимит вариантов');
+            throw new AppInvalidParametersException("Привышен лимит вариантов");
         }
 
-        /** @var UrlsRepository $repository */
-        $repository = $this->em->getRepository(Urls::class);
+        /** @var ShortUrlsRepository $repository */
+        $repository = $this->em->getRepository(ShortUrl::class);
 
         $code = $this->generator->generateString($currentLength);
 
         while ($repository->isExistCode($code)) {
-            //Генерируем short code пока не получим уникальный.
+            //Генерируем code пока не получим уникальный.
             $code = $this->generator->generateString($currentLength);
         }
 
-        $repository->insert($url, $code);
+        $shortUrls = $repository->insert($url, $code);
 
-        apcu_dec(self::CACHE_KEY_PREFIX . $currentLength);
+        if ($code == $shortUrls->getCode()) {
+            apcu_dec(self::CACHE_KEY_PREFIX . $currentLength);
+        }
 
-        return sprintf('%s://%s/%s', $schema, $host, $code);
+        return [
+            'id' => $shortUrls->getId(),
+            'url' => $shortUrls->getUrl(),
+            'short_url' => static::makeShortUrl( $schema, $host, $shortUrls->getCode()),
+        ];
     }
 
     /**
@@ -78,7 +96,7 @@ class ShortUrlService
     public function getShorteningLimit(int $length): int
     {
         if (!($length >= $this->min && $length <= $this->max)) {
-            throw new InvalidArgumentException(sprintf('Допустимы диапазаон от %s до %s', $this->min, $this->max));
+            throw new AppInvalidParametersException(sprintf('Допустимы диапазаон от %s до %s', $this->min, $this->max));
         }
 
         $cacheKey = self::CACHE_KEY_PREFIX . $length;
@@ -87,8 +105,8 @@ class ShortUrlService
             return apcu_fetch($cacheKey);
         }
 
-        /** @var UrlsRepository $repository */
-        $repository = $this->em->getRepository(Urls::class);
+        /** @var ShortUrlsRepository $repository */
+        $repository = $this->em->getRepository(ShortUrl::class);
 
         $created = $repository->getCountByLengthCode($length);
         $full    = $this->generator->getCountOptions($length);
@@ -98,5 +116,20 @@ class ShortUrlService
         apcu_add($cacheKey, $limit);
 
         return $limit;
+    }
+
+    /**
+     * @param string $code
+     *
+     * @return ShortUrl|null
+     */
+    public function getShortUrlByCode(string $code): ?ShortUrl
+    {
+        /** @var ShortUrlsRepository $repository */
+        $repository = $this->em->getRepository(ShortUrl::class);
+
+        return $repository->findOneBy([
+            'code' => $code,
+        ]);
     }
 }

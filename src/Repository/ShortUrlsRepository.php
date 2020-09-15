@@ -2,32 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\Urls;
+use App\Entity\ShortUrl;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\LockMode;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\TransactionRequiredException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Urls|null find($id, $lockMode = null, $lockVersion = null)
- * @method Urls|null findOneBy(array $criteria, array $orderBy = null)
- * @method Urls[]    findAll()
- * @method Urls[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method ShortUrl|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ShortUrl|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ShortUrl[]    findAll()
+ * @method ShortUrl[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class UrlsRepository extends ServiceEntityRepository
+class ShortUrlsRepository extends ServiceEntityRepository
 {
     /**
-     * UrlsRepository constructor.
+     * ShortUrlsRepository constructor.
      *
      * @param ManagerRegistry $registry
      */
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Urls::class);
+        parent::__construct($registry, ShortUrl::class);
     }
 
     /**
@@ -40,7 +35,7 @@ class UrlsRepository extends ServiceEntityRepository
     {
         $connection = $this->getEntityManager()->getConnection();
         $statement  = $connection->prepare(
-            'SELECT count(*) as count FROM urls AS u WHERE LENGTH(u.code) = :length'
+            'SELECT count(*) as count FROM short_urls AS u WHERE LENGTH(u.code) = :length'
         );
 
         $statement->execute([
@@ -62,19 +57,31 @@ class UrlsRepository extends ServiceEntityRepository
     {
         $connection = $this->getEntityManager()->getConnection();
         $statement  = $connection->prepare(
-            'SELECT EXISTS(SELECT 1 FROM urls WHERE code = :code)'
+            'SELECT EXISTS(SELECT 1 FROM short_urls WHERE code = :code)'
         );
 
         $statement->execute([
             'code' => $code,
         ]);
 
-        $result = $statement->fetchAll();
+        $result = $statement->fetch();
 
-        return (bool)$result;
+        return (bool)$result['exists'];
     }
 
-    public function insert(string $url, string $code): int
+    /**
+     * @param string $url
+     * @param string $code
+     *
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws \Throwable
+     * @return ShortUrl
+     */
+    public function insert(string $url, string $code): ShortUrl
     {
         $em = $this->getEntityManager();
 
@@ -89,10 +96,10 @@ class UrlsRepository extends ServiceEntityRepository
                 ->getOneOrNullResult();
 
             if ($shortUrl) {
-                return $shortUrl->getId();
+                return $shortUrl;
             }
 
-            $shortUrl = new Urls();
+            $shortUrl = new ShortUrl();
 
             $shortUrl->setUrl($url);
             $shortUrl->setCode($code);
@@ -102,45 +109,11 @@ class UrlsRepository extends ServiceEntityRepository
             $em->flush();
             $em->getConnection()->commit();
 
-            return $shortUrl->getId();
+            return $shortUrl;
         } catch (\Throwable $ex) {
             $em->getConnection()->rollBack();
 
             throw $ex;
         }
     }
-
-    public function updateById(int $id)
-    {
-
-    }
-
-    // /**
-    //  * @return Links[] Returns an array of Links objects
-    //  */
-
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('l.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->setLockMode(LockMode::PESSIMISTIC_READ)
-            ->getResult();
-    }
-
-
-    /*
-    public function findOneBySomeField($value): ?Links
-    {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

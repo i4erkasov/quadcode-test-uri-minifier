@@ -6,7 +6,7 @@ use App\Interfaces\RequestDtoInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UrlGenerateRequest implements RequestDtoInterface
+class StatisticRedirectRequest implements RequestDtoInterface
 {
     /**
      * @Assert\NotNull(
@@ -15,11 +15,18 @@ class UrlGenerateRequest implements RequestDtoInterface
      * @Assert\NotBlank(
      *     message="Url не может быть пустым 1"
      * )
-     * @Assert\Url(
-     *     message="Не верный формат url"
+     */
+    private int $page;
+
+    /**
+     * @Assert\NotNull(
+     *     message="Url не может быть пустым 2"
+     * )
+     * @Assert\NotBlank(
+     *     message="Url не может быть пустым 1"
      * )
      */
-    private ?string $url;
+    private int $limit;
 
     private string $host;
 
@@ -35,20 +42,26 @@ class UrlGenerateRequest implements RequestDtoInterface
     public function __construct(Request $request)
     {
         $this->schema = $request->getScheme();
-        $this->host = $request->getHost();
+        $this->host   = $request->getHost();
         $this->port   = $request->getPort();
-
-        $content = json_decode($request->getContent(), true);
-
-        $this->url = $content['url'] ?? null;
+        $this->limit  = (int)$request->get('limit', 10);
+        $this->page   = (int)$request->get('page', 1);
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getUrl(): string
+    public function getLimit(): int
     {
-        return $this->url;
+        return $this->limit;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPage(): int
+    {
+        return $this->page;
     }
 
     /**
@@ -66,7 +79,7 @@ class UrlGenerateRequest implements RequestDtoInterface
     /**
      * @return string
      */
-    public function getSchema(): string
+    public function getScheme(): string
     {
         return $this->schema;
     }

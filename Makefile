@@ -9,7 +9,7 @@ up: docker-up
 down: docker-down
 restart: docker-down docker-up
 
-init: docker-down-clear docker-build docker-up composer-install
+init: docker-down-clear docker-build docker-up composer-install app-migrate
 
 docker-up:
 	export uid=$(uid) gid=$(gid); \
@@ -42,3 +42,7 @@ docker-top:
 composer-install:
 	export uid=$(uid) gid=$(gid); \
 	docker-compose -f ./docker-compose-local.yml run --rm php-fpm composer install
+
+app-migrate:
+	export uid=$(uid) gid=$(gid); \
+	docker-compose -f ./docker-compose-local.yml run --rm php-fpm php bin/console --no-interaction doctrine:migrations:migrate;
