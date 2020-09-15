@@ -1,0 +1,51 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DoctrineMigrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Auto-generated Migration: Please modify to your needs!
+ */
+final class Version20200914172218 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return '';
+    }
+
+    public function up(Schema $schema): void
+    {
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE SEQUENCE IF NOT EXISTS links_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE TABLE IF NOT EXISTS urls (
+                                id INT NOT NULL,
+                                url VARCHAR(2048) NOT NULL, 
+                                code VARCHAR(10) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+                           PRIMARY KEY(id))'
+        );
+
+        $this->addSql('CREATE SEQUENCE IF NOT EXISTS statistic_redirect_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_D182A11877153098 ON urls (code)');
+        $this->addSql('CREATE TABLE IF NOT EXISTS statistic_redirect (
+                                id INT NOT NULL,
+                                url_id INT NOT NULL, 
+                                redirect_datetime TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                           FOREIGN KEY (url_id) REFERENCES urls (id) ON DELETE CASCADE,
+                           PRIMARY KEY(id))'
+        );
+    }
+
+    public function down(Schema $schema): void
+    {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE SCHEMA public');
+        $this->addSql('DROP SEQUENCE links_id_seq CASCADE');
+        $this->addSql('DROP SEQUENCE statistic_redirect_id_seq CASCADE');
+        $this->addSql('DROP TABLE links');
+        $this->addSql('DROP TABLE statistic_redirect');
+    }
+}

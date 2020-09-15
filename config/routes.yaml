@@ -1,0 +1,4 @@
+shorturl:
+  prefix: /shorturl
+  resource: "routes/shorturl/shorturl.yaml"
+

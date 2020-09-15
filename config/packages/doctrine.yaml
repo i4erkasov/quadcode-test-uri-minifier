@@ -1,0 +1,24 @@
+doctrine:
+  dbal:
+    default_connection: di_pgsql
+    connections:
+      di_pgsql:
+        server_version: 12.3
+        driver: pdo_pgsql
+        host: '%env(POSTGRESQL_HOST)%'
+        #port: '%env(POSTGRESQL_PORT)%'
+        dbname: '%env(POSTGRESQL_DB)%'
+        user: '%env(POSTGRESQL_USER)%'
+        password: '%env(POSTGRESQL_PASS)%'
+        charset: UTF8
+  orm:
+    auto_generate_proxy_classes: true
+    naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+    auto_mapping: true
+    mappings:
+      App:
+        is_bundle: false
+        type: annotation
+        dir: '%kernel.project_dir%/src/Entity'
+        prefix: 'App\Entity'
+        alias: App

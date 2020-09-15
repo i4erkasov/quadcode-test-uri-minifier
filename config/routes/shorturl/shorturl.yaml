@@ -1,0 +1,11 @@
+generate:
+  path: /generate
+  methods:    [POST]
+  controller: App\Controller\ShortUrlController::generate
+
+limit:
+  path: /limits/{length}
+  methods: [GET]
+  controller: App\Controller\ShortUrlController::limits
+  requirements:
+    length: '^[1-9]\d*'

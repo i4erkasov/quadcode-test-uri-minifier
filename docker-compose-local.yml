@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  php-fpm:
+    build:
+      context: ci/local/php-fpm
+      args:
+        UID: "${uid}"
+        GID: "${gid}"
+    restart: always
+    volumes:
+      - ./:/app
+    networks:
+      - quadcode
+
+  nginx:
+    build:
+      context: ci/local/nginx
+    restart: always
+    ports:
+      - ${NGINX_PORT}:80
+    depends_on:
+      - php-fpm
+    links:
+      - php-fpm
+    volumes:
+      - ./:/app
+    networks:
+      - quadcode
+
+  postgresql:
+    image: postgres:12.4
+    command: postgres -c 'max_connections=100'
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      POSTGRES_DB: ${POSTGRESQL_DB}
+    ports:
+      - ${POSTGRESQL_PORT}:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - quadcode
+
+volumes:
+  pg_data:
+
+networks:
+  quadcode:
+    driver: bridge
