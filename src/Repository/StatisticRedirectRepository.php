@@ -35,7 +35,7 @@ class StatisticRedirectRepository extends ServiceEntityRepository
     public function getStatisticAll(int $limit = 10, int $offset = 1)
     {
         return $this->createQueryBuilder('s')
-            ->select('u.id as id, u.code as code, count(s.id) as redirect')
+            ->select('u.id as id, u.code as code, count(s.id) as redirect, u.url as url')
             ->leftJoin(ShortUrl::class, 'u', Join::WITH, 'u.id = s.urlId')
             ->orderBy('u.id', 'ASC')
             ->groupBy('u.id')
@@ -54,7 +54,7 @@ class StatisticRedirectRepository extends ServiceEntityRepository
     public function getStatisticById(int $id): ?array
     {
         return $this->createQueryBuilder('s')
-            ->select('u.id as id, u.code as code, count(s.id) as redirect, u.url as url, u.createdAt as date_created')
+            ->select('u.id as id, u.code as code, count(s.id) as redirect, u.url as url')
             ->leftJoin(ShortUrl::class, 'u', Join::WITH, 'u.id = s.urlId')
             ->andWhere('u.id = :id')
             ->setParameter('id', $id)

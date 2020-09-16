@@ -45,7 +45,7 @@ class StatisticRedirectController extends AbstractController
      * @throws \Doctrine\ORM\NonUniqueResultException
      * @return array|null
      */
-    public function detail(int $id, StatisticRedirectRequest $request, StatisticRedirectService $statisticService)
+    public function getById(int $id, StatisticRedirectRequest $request, StatisticRedirectService $statisticService)
     {
         $schema = $request->getScheme();
         $host   = $request->getHost();

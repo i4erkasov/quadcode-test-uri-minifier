@@ -80,11 +80,13 @@ accept: application/json
                 {
                     "id": 2,
                     "redirect": 1,
+                    "url": "https:\/\/github.com\/i4erkasov\/quadcode-test-uri-minifier",
                     "short_url": "http:\/\/127.0.0.1:8088\/cme"
                 },
                 {
                     "id": 3,
                     "redirect": 1,
+                    "url": "https://github.com/i4erkasov/quadcode-test-uri-minifier/blob/master/README.md",
                     "short_url": "http:\/\/127.0.0.1:8088\/0k8"
                 }
             ]
@@ -108,11 +110,6 @@ accept: application/json
             "code": "cme",
             "redirect": 1,
             "url": "https:\/\/github.com\/i4erkasov\/quadcode-test-uri-minifier",
-            "date_created": {
-                "date": "2020-09-15 21:26:56.000000",
-                "timezone_type": 3,
-                "timezone": "UTC"
-            },
             "short_url": "http:\/\/127.0.0.1:8088\/cme"
         }
     }

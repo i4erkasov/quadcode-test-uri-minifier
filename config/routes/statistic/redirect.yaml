@@ -6,6 +6,6 @@ index:
 detail:
   path: /redirect/{id}
   methods: [GET]
-  controller: App\Controller\StatisticRedirectController::detail
+  controller: App\Controller\StatisticRedirectController::getById
   requirements:
     id: '^[1-9]\d*'
