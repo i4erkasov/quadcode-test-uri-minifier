@@ -35,10 +35,12 @@ services:
       - { name: controller.request_value_resolver, priority: 50 }
 
   App\Services\StringGeneratorService:
+    public: true
     arguments:
       $chars: '%env(CHARS)%'
 
   App\Services\ShortUrlService:
+    public: true
     arguments:
       $config:
         min_length: '%env(MIN_LENGTH)%'

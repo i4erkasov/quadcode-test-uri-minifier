@@ -109,7 +109,7 @@ class ShortUrlService
         $repository = $this->em->getRepository(ShortUrl::class);
 
         $created = $repository->getCountByLengthCode($length);
-        $full    = $this->generator->getCountOptions($length);
+        $full    = $this->generator->getLimits($length);
 
         $limit = $full - $created;
 

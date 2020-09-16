@@ -19,14 +19,15 @@ class StringGeneratorService
     /**
      * @param int $length
      *
+     * @throws \Exception
      * @return string
      */
     public function generateString(int $length): string
     {
-        $lengthCharSet = $this->getLengthCharSet();
+        $lengthChar = $this->getLengthChars();
 
-        for ($i = 0; $i < $length; $i++) {
-            $string = ($string ?? '') . $this->chars[mt_rand(0, $lengthCharSet - 1)];
+        while ($length-- > 0) {
+            $string = ($string ?? '') . $this->chars[random_int(0, $lengthChar - 1)];
         }
 
         return $string ?? '';
@@ -37,17 +38,17 @@ class StringGeneratorService
      *
      * @return int
      */
-    public function getCountOptions(int $length): int
+    public function getLimits(int $length): int
     {
-        $lengthCharSet = $this->getLengthCharSet();
+        $lengthChars = $this->getLengthChars();
 
-        return $lengthCharSet ** $length;
+        return $lengthChars ** $length;
     }
 
     /**
      * @return int
      */
-    private function getLengthCharSet(): int
+    private function getLengthChars(): int
     {
         return strlen($this->chars);
     }
