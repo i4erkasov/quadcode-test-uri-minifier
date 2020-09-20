@@ -2,35 +2,32 @@
 
 namespace App\Services;
 
+/**
+ * Данный класс выступает в виде сервиса для генерации уникального "code".
+ * Алгоримт генерации кода основан на алгоритме base-36 с использование
+ * рандомно раставленных символов
+ */
 class StringGeneratorService
 {
-    private string $chars;
+    private const CHARS = 'gf1shi2lm9onb3ywc5d4q6prv0jkt8uxz7';
 
     /**
-     * StringGeneratorService constructor.
-     *
-     * @param string $chars
-     */
-    public function __construct(string $chars)
-    {
-        $this->chars = $chars;
-    }
-
-    /**
+     * @param int $digit
      * @param int $length
      *
      * @throws \Exception
      * @return string
      */
-    public function generateString(int $length): string
+    public function generateCode(int $digit, int $length): string
     {
         $lengthChar = $this->getLengthChars();
 
-        while ($length-- > 0) {
-            $string = ($string ?? '') . $this->chars[random_int(0, $lengthChar - 1)];
-        }
+        do {
+            $string = self::CHARS[($digit % $lengthChar)] . ($string ?? '');
+            $digit  = (int)($digit / $lengthChar);
+        } while ($digit != 0);
 
-        return $string ?? '';
+        return str_pad($string, $length, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -50,6 +47,6 @@ class StringGeneratorService
      */
     private function getLengthChars(): int
     {
-        return strlen($this->chars);
+        return strlen(self::CHARS);
     }
 }

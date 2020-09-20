@@ -67,12 +67,12 @@ class ShortUrlService
         /** @var ShortUrlsRepository $repository */
         $repository = $this->em->getRepository(ShortUrl::class);
 
-        $code = $this->generator->generateString($currentLength);
+        $limit = $this->getShorteningLimit($currentLength);
+        $full  = $this->generator->getLimits($currentLength);
 
-        while ($repository->isExistCode($code)) {
-            //Генерируем code пока не получим уникальный.
-            $code = $this->generator->generateString($currentLength);
-        }
+        $digit = $full - $limit;
+
+        $code = $this->generator->generateCode($digit, $currentLength);
 
         $shortUrls = $repository->insert($url, $code);
 
@@ -81,9 +81,9 @@ class ShortUrlService
         }
 
         return [
-            'id' => $shortUrls->getId(),
-            'url' => $shortUrls->getUrl(),
-            'short_url' => static::makeShortUrl( $schema, $host, $shortUrls->getCode()),
+            'id'        => $shortUrls->getId(),
+            'url'       => $shortUrls->getUrl(),
+            'short_url' => static::makeShortUrl($schema, $host, $shortUrls->getCode()),
         ];
     }
 
@@ -96,7 +96,7 @@ class ShortUrlService
     public function getShorteningLimit(int $length): int
     {
         if (!($length >= $this->min && $length <= $this->max)) {
-            throw new AppInvalidParametersException(sprintf('Допустимы диапазаон от %s до %s', $this->min, $this->max));
+            throw new AppInvalidParametersException("Допустимый диапазаон от {$this->min} до {$this->max}");
         }
 
         $cacheKey = self::CACHE_KEY_PREFIX . $length;
