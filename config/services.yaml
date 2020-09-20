@@ -36,8 +36,6 @@ services:
 
   App\Services\StringGeneratorService:
     public: true
-    arguments:
-      $chars: '%env(CHARS)%'
 
   App\Services\ShortUrlService:
     public: true

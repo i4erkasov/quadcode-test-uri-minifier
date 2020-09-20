@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Requests\UrlGenerateRequest;
 use App\Services\ShortUrlService;
+use App\Services\StringGeneratorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ShortUrlController extends AbstractController

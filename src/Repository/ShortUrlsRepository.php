@@ -48,28 +48,6 @@ class ShortUrlsRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param $code
-     *
-     * @throws \Doctrine\DBAL\DBALException
-     * @return bool
-     */
-    public function isExistCode($code): bool
-    {
-        $connection = $this->getEntityManager()->getConnection();
-        $statement  = $connection->prepare(
-            'SELECT EXISTS(SELECT 1 FROM short_urls WHERE code = :code)'
-        );
-
-        $statement->execute([
-            'code' => $code,
-        ]);
-
-        $result = $statement->fetch();
-
-        return (bool)$result['exists'];
-    }
-
-    /**
      * @param string $url
      * @param string $code
      *

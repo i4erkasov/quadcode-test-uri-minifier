@@ -67,12 +67,9 @@ class ShortUrlService
         /** @var ShortUrlsRepository $repository */
         $repository = $this->em->getRepository(ShortUrl::class);
 
-        $code = $this->generator->generateString($currentLength);
+        $digit = $this->getCountCreatingShortUrl($currentLength);
 
-        while ($repository->isExistCode($code)) {
-            //Генерируем code пока не получим уникальный.
-            $code = $this->generator->generateString($currentLength);
-        }
+        $code = $this->generator->generateCode($digit, $currentLength);
 
         $shortUrls = $repository->insert($url, $code);
 
@@ -81,9 +78,9 @@ class ShortUrlService
         }
 
         return [
-            'id' => $shortUrls->getId(),
-            'url' => $shortUrls->getUrl(),
-            'short_url' => static::makeShortUrl( $schema, $host, $shortUrls->getCode()),
+            'id'        => $shortUrls->getId(),
+            'url'       => $shortUrls->getUrl(),
+            'short_url' => static::makeShortUrl($schema, $host, $shortUrls->getCode()),
         ];
     }
 
@@ -131,5 +128,19 @@ class ShortUrlService
         return $repository->findOneBy([
             'code' => $code,
         ]);
+    }
+
+    /**
+     * @param int $length
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     * @return int
+     */
+    private function getCountCreatingShortUrl(int $length): int
+    {
+        $limit = $this->getShorteningLimit($length);
+        $full  = $this->generator->getLimits($length);
+
+        return $full - $limit;
     }
 }
