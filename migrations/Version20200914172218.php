@@ -22,7 +22,8 @@ final class Version20200914172218 extends AbstractMigration
         $this->addSql('CREATE TABLE IF NOT EXISTS short_urls (
                                 id BIGSERIAL NOT NULL,
                                 url VARCHAR(2048) NOT NULL, 
-                                code VARCHAR(10) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, 
+                                code VARCHAR(10) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                                removed BOOLEAN NOT NULL DEFAULT false,
                            PRIMARY KEY(id))'
         );
 

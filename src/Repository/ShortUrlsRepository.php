@@ -57,37 +57,45 @@ class ShortUrlsRepository extends ServiceEntityRepository
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
      * @throws \Throwable
-     * @return ShortUrl
+     * @return array
      */
-    public function insert(string $url, string $code): ShortUrl
+    public function insert(string $url, string $code): array
     {
         $em = $this->getEntityManager();
 
         $em->getConnection()->beginTransaction();
 
         try {
-            $shortUrl = $this->createQueryBuilder('u')
-                ->andWhere('u.url = :url')
-                ->setParameter('url', $url)
-                ->getQuery()
-                ->setLockMode(LockMode::PESSIMISTIC_READ)
-                ->getOneOrNullResult();
+            $sql = 'SELECT id, url, code FROM short_urls WHERE url = :url AND removed = false';
+
+            $statement = $em->getConnection()->executeQuery($sql, [
+                'url' => $url,
+            ]);
+
+            $shortUrl = $statement->fetch();
 
             if ($shortUrl) {
                 return $shortUrl;
             }
 
-            $shortUrl = new ShortUrl();
+            $sql = 'INSERT INTO short_urls AS su (url, code, created_at)
+            VALUES (:url, :code, :date_create) ON CONFLICT (code) DO
+                UPDATE SET url = :url, removed = false
+            WHERE su.id = (SELECT id FROM short_urls WHERE removed = true LIMIT 1)
+            RETURNING su.id as id, su.url as url, su.code as code';
 
-            $shortUrl->setUrl($url);
-            $shortUrl->setCode($code);
-            $shortUrl->setCreatedAt(new \DateTimeImmutable('NOW'));
+            $statement = $em->getConnection()->executeQuery($sql, [
+                'url'         => $url,
+                'code'        => $code,
+                'date_create' => (new \DateTime('NOW'))->format('Y-m-d h:i:s'),
+            ]);
 
-            $em->persist($shortUrl);
-            $em->flush();
+            $result = $statement->fetch();
+
             $em->getConnection()->commit();
 
-            return $shortUrl;
+            return $result ? $result : [];
+
         } catch (\Throwable $ex) {
             $em->getConnection()->rollBack();
 

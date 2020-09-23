@@ -74,17 +74,19 @@ class ShortUrlService
 
         $code = $this->generator->generateCode($digit, $currentLength);
 
-        $shortUrls = $repository->insert($url, $code);
+        $shortUrl = $repository->insert($url, $code);
 
-        if ($code == $shortUrls->getCode()) {
+        if (!$shortUrl) {
+            throw new \RuntimeException("Ссылка не была создана. Код для вставки code : {$code}");
+        }
+
+        if ($code == $shortUrl['code']) {
             apcu_dec(self::CACHE_KEY_PREFIX . $currentLength);
         }
 
-        return [
-            'id'        => $shortUrls->getId(),
-            'url'       => $shortUrls->getUrl(),
-            'short_url' => static::makeShortUrl($schema, $host, $shortUrls->getCode()),
-        ];
+        $shortUrl['short_url'] = static::makeShortUrl($schema, $host, $shortUrl['code']);
+
+        return $shortUrl;
     }
 
     /**

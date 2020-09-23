@@ -40,8 +40,9 @@ Content-Type: application/json
         "status": "success",
         "data": {
             "id": 2,
+            "code": "00g",
             "url": "https:\/\/github.com\/i4erkasov\/quadcode-test-uri-minifier",
-            "short_url": "http:\/\/127.0.0.1:8088\/cme"
+            "short_url": "http:\/\/127.0.0.1:8088\/00g"
         }
     }
 ```
