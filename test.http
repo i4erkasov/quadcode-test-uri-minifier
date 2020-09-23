@@ -4,7 +4,7 @@ accept: application/json
 Content-Type: application/json
 
 {
-    "url": "https://github.com/i4erkasov/quadcode-test-uri-minifier/blob/master/README.md123"
+    "url": "https://github.com/i4erkasov/quadcode-test-uri-minifier/blob/master/README.md"
 }
 
 ###

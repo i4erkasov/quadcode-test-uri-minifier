@@ -52,7 +52,7 @@ class StatisticRedirectController extends AbstractController
 
         $statistic = $statisticService->getStatisticById($id);
 
-        if($statistic){
+        if ($statistic) {
             $statistic['short_url'] = ShortUrlService::makeShortUrl($schema, $host, $statistic['code']);
         }
 

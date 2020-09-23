@@ -196,6 +196,9 @@
     "symfony/http-kernel": {
         "version": "v5.1.5"
     },
+    "symfony/lock": {
+        "version": "v5.1.5"
+    },
     "symfony/maker-bundle": {
         "version": "1.0",
         "recipe": {

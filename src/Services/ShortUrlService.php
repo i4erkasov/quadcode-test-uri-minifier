@@ -6,6 +6,8 @@ use App\Entity\ShortUrl;
 use App\Exceptions\AppInvalidParametersException;
 use App\Repository\ShortUrlsRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 
 class ShortUrlService
 {
@@ -17,6 +19,8 @@ class ShortUrlService
 
     private EntityManagerInterface $em;
 
+    private LockInterface $lock;
+
     private const CACHE_KEY_PREFIX = 'SHORTENING_LIMIT_';
 
     /**
@@ -24,11 +28,18 @@ class ShortUrlService
      *
      * @param array                  $config
      * @param StringGeneratorService $generator
+     * @param LockFactory            $lockFactory
      * @param EntityManagerInterface $em
      */
-    public function __construct(array $config, StringGeneratorService $generator, EntityManagerInterface $em)
+    public function __construct(
+        array $config,
+        StringGeneratorService $generator,
+        LockFactory $lockFactory,
+        EntityManagerInterface $em
+    )
     {
         $this->generator = $generator;
+        $this->lock      = $lockFactory->createLock('CREATE_SHORT_URL');
         $this->em        = $em;
 
         $this->min = (int)$config['min_length'];
@@ -50,6 +61,8 @@ class ShortUrlService
      */
     public function createShortUrl(string $schema, string $host, string $url): array
     {
+        $this->lock->acquire();
+
         $currentLength = apcu_fetch('CURRENT_LENGTH') ? apcu_fetch('CURRENT_LENGTH') : $this->min;
 
         while ($currentLength <= $this->max) {
@@ -80,11 +93,11 @@ class ShortUrlService
             throw new \RuntimeException("Ссылка не была создана. Код для вставки code : {$code}");
         }
 
-        if ($code == $shortUrl['code']) {
-            apcu_dec(self::CACHE_KEY_PREFIX . $currentLength);
-        }
+        apcu_dec(self::CACHE_KEY_PREFIX . $currentLength);
 
         $shortUrl['short_url'] = static::makeShortUrl($schema, $host, $shortUrl['code']);
+
+        $this->lock->refresh();
 
         return $shortUrl;
     }
