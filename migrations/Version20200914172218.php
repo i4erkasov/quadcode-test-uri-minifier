@@ -35,63 +35,6 @@ final class Version20200914172218 extends AbstractMigration
                            FOREIGN KEY (url_id) REFERENCES short_urls (id) ON DELETE CASCADE,
                            PRIMARY KEY(id))'
         );
-
-        $this->addSql("CREATE OR REPLACE FUNCTION base36_encode(IN digits bigint, IN min_width int = 0)
-                                RETURNS varchar AS $$
-                                    DECLARE
-			                            chars char[];
-			                            ret varchar;
-			                            val bigint;
-		                            BEGIN
-		                            chars := ARRAY['0','1','2','3','4','5','6','7','8','9'
-			                                        ,'a','b','c','d','e','f','g','h','i','j','k','l','m'
-			                                        ,'n','o','p','q','r','s','t','u','v','w','x','y','z'];
-		                            val := digits;
-		                            ret := '';
-		                            IF val < 0 THEN
-			                            val := val * -1;
-		                            END IF;
-		                            
-		                            WHILE val != 0 LOOP
-			                            ret := chars[(val % 36)+1] || ret;
-                                        val := val / 36;
-                                    END LOOP;
-
-                                    IF min_width > 0 AND char_length(ret) < min_width THEN
-                                        ret := lpad(ret, min_width, '0');
-                                    END IF;
-
-		                            RETURN ret;
- 
-                            END;
-                            $$ LANGUAGE 'plpgsql' IMMUTABLE;");
-
-        $this->addSql("CREATE OR REPLACE FUNCTION base36_decode(IN base36 varchar)
-                              RETURNS bigint AS $$
-                                    DECLARE
-                                        a char[];
-                                        ret bigint;
-                                        i int;
-                                        val int;
-                                        chars varchar;
-                                    BEGIN
-                                    chars := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                             
-                                    FOR i IN REVERSE char_length(base36)..1 LOOP
-                                        a := a || substring(upper(base36) FROM i FOR 1)::char;
-                                    END LOOP;
-                                    i := 0;
-                                    ret := 0;
-                                    WHILE i < (array_length(a,1)) LOOP		
-                                        val := position(a[i+1] IN chars)-1;
-                                        ret := ret + (val * (36 ^ i))::bigint;
-                                        i := i + 1;
-                                    END LOOP;
-                             
-                                    RETURN ret;
-                             
-                            END;
-                            $$ LANGUAGE 'plpgsql' IMMUTABLE;");
     }
 
     public function down(Schema $schema): void
