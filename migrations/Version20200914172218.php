@@ -39,8 +39,6 @@ final class Version20200914172218 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // echo  $a = base_convert(100, 10, 36);
-        // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP SEQUENCE links_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE statistic_redirect_id_seq CASCADE');
